@@ -2,18 +2,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(AudioSource))]
 public class AlarmSystem : MonoBehaviour
 {
-    [SerializeField] private float _actionDistance;
-    [SerializeField] private Player _player;
-    
+    [SerializeField] private float _timeAlarmDelay;
+
     private AudioSource _audioSource;
     private Coroutine _currentCoroutine;
-    private float _distance;
     private float _volume;
     private bool _isPlayerInHouse;
+    private float _currentTime;
 
     private void Awake()
     {
@@ -25,17 +25,16 @@ public class AlarmSystem : MonoBehaviour
         _audioSource.volume = 0;
     }
 
-    IEnumerator VolumeChanging(
-        Vector3 positionAlarm, 
+    private IEnumerator VolumeChanging(
         float valueStart, 
         float valueFinish)
     {
         
-        while (_distance < _actionDistance)
+        while (_currentTime < _timeAlarmDelay)
         {
-            _distance = GetDistanceXZ(positionAlarm, _player.transform.position);
-            _volume = Mathf.Lerp(valueStart, valueFinish, _distance / _actionDistance);
+            _volume = Mathf.Lerp(valueStart, valueFinish,  _currentTime / _timeAlarmDelay);
             _audioSource.volume = _volume;
+            _currentTime += Time.deltaTime;
             
             yield return null;
         }
@@ -50,18 +49,7 @@ public class AlarmSystem : MonoBehaviour
         yield return null;
     }
 
-    private float GetDistanceXZ(Vector3 pointStart, Vector3 pointEnd)
-    {
-        Vector2 v2Start = GetVector2XZByVector3(pointStart);
-        Vector2 v3End = GetVector2XZByVector3(pointEnd);
-        float distance = Vector2.Distance(v2Start, v3End);
-        return distance;
-    }
-
-    private Vector2 GetVector2XZByVector3(Vector3 point)
-        => new Vector2(point.x, point.y);
-
-    public void PlayerClossAlarmArea(Vector3 position)
+    public void AlarmTriggered()
     {
         if (_currentCoroutine != null)
         {
@@ -71,7 +59,7 @@ public class AlarmSystem : MonoBehaviour
         _isPlayerInHouse = !_isPlayerInHouse;
         float valueStart = _volume;
         float valueFinish = 0;
-        _distance = 0;
+        _currentTime = 0;
 
         if (_isPlayerInHouse == true)
         {
@@ -80,6 +68,6 @@ public class AlarmSystem : MonoBehaviour
             _audioSource.Play(0);
         }
         
-        _currentCoroutine = StartCoroutine(VolumeChanging(position, valueStart, valueFinish));
+        _currentCoroutine = StartCoroutine(VolumeChanging(valueStart, valueFinish));
     }
 }

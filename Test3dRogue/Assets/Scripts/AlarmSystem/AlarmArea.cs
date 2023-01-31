@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class AlarmCheck : MonoBehaviour
+public class AlarmArea : MonoBehaviour
 {
     [SerializeField] private AlarmSystem _alarmSystem;
     
@@ -11,7 +11,7 @@ public class AlarmCheck : MonoBehaviour
     {
         if (other.TryGetComponent(out Player player))
         {
-            _alarmSystem.PlayerClossAlarmArea(transform.position);
+            _alarmSystem.AlarmTriggered();
         }
     }
 }
