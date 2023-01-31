@@ -7,13 +7,15 @@ using UnityEngine.Serialization;
 [RequireComponent(typeof(AudioSource))]
 public class AlarmSystem : MonoBehaviour
 {
-    [SerializeField] private float _timeAlarmDelay;
-
+    [SerializeField] private float _volumeChangeSpeed;
+    
     private AudioSource _audioSource;
     private Coroutine _currentCoroutine;
-    private float _volume;
     private bool _isPlayerInHouse;
-    private float _currentTime;
+    private float _volumeCurrent;
+    private float _volumeFinish;
+    private float _volumeDelta;
+    private float _volumeDeltaLimit = -0.01f;
 
     private void Awake()
     {
@@ -25,22 +27,17 @@ public class AlarmSystem : MonoBehaviour
         _audioSource.volume = 0;
     }
 
-    private IEnumerator VolumeChanging(
-        float valueStart, 
-        float valueFinish)
+    private IEnumerator VolumeChanging()
     {
-        
-        while (_currentTime < _timeAlarmDelay)
+        while (_volumeDelta>_volumeDeltaLimit)
         {
-            _volume = Mathf.Lerp(valueStart, valueFinish,  _currentTime / _timeAlarmDelay);
-            _audioSource.volume = _volume;
-            _currentTime += Time.deltaTime;
+            _volumeCurrent = Mathf.MoveTowards(_volumeCurrent, _volumeFinish, _volumeChangeSpeed*Time.deltaTime);
+            _volumeDelta = MathF.Abs(_volumeFinish - _volumeCurrent);
+            _audioSource.volume = _volumeCurrent;
             
             yield return null;
         }
-
-        _audioSource.volume = valueFinish;
-
+        
         if (_isPlayerInHouse == false)
         {
             _audioSource.Stop();
@@ -57,17 +54,14 @@ public class AlarmSystem : MonoBehaviour
         }
         
         _isPlayerInHouse = !_isPlayerInHouse;
-        float valueStart = _volume;
-        float valueFinish = 0;
-        _currentTime = 0;
+        _volumeFinish = 0;
 
         if (_isPlayerInHouse == true)
         {
-            valueStart = 0;
-            valueFinish = 1;
+            _volumeFinish = 1f;
             _audioSource.Play(0);
         }
         
-        _currentCoroutine = StartCoroutine(VolumeChanging(valueStart, valueFinish));
+        _currentCoroutine = StartCoroutine(VolumeChanging());
     }
 }

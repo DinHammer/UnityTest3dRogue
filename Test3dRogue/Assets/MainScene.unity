@@ -992,7 +992,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1f6a61bde0de51489cc95d203db51be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _timeAlarmDelay: 15
+  _volumeChangeSpeed: 0.5
 --- !u!82 &1487067863
 AudioSource:
   m_ObjectHideFlags: 0
