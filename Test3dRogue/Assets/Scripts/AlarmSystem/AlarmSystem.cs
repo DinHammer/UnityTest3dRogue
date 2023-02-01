@@ -46,7 +46,7 @@ public class AlarmSystem : MonoBehaviour
         yield return null;
     }
 
-    public void AlarmTriggered()
+    public void OnTriggering()
     {
         if (_currentCoroutine != null)
         {

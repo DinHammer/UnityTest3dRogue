@@ -11,7 +11,7 @@ public class AlarmArea : MonoBehaviour
     {
         if (other.TryGetComponent(out Player player))
         {
-            _alarmSystem.AlarmTriggered();
+            _alarmSystem.OnTriggering();
         }
     }
 }
